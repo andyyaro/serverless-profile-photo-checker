@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: quotes-app
+  labels:
+    app: quotes-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: quotes-app
+  template:
+    metadata:
+      labels:
+        app: quotes-app
+    spec:
+      containers:
+      - name: quotes-app
+        image: andyyaro/quotes-app:latest
+        imagePullPolicy: Always
