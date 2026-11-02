@@ -1,0 +1,19 @@
+[one face, smiling, eyes open] request image chars=558892
+  -> {"statusCode": 200, "body": "\"Good Profile Photo\""}
+[one face, not smiling, eyes closed] request image chars=3474608
+  -> {"statusCode": 200, "body": "\"Bad Profile Photo\""}
+[one face, smiling, eyes closed] request image chars=558892
+  -> {"statusCode": 200, "body": "\"Bad Profile Photo\""}
+[two faces] request image chars=558892
+  -> {"statusCode": 400, "body": {"Error": "ValueError", "ErrorMessage": "Please upload a picture with only one face"}}
+[no face] request image chars=558892
+  -> {"statusCode": 400, "body": {"Error": "ValueError", "ErrorMessage": "Please upload a picture with only one face"}}
+[event without 'image'] request image chars=0
+  -> {"statusCode": 400, "body": {"Error": "ValueError", "ErrorMessage": "Invalid source. Only image base 64 encoded image bytes are supported."}}
+[Rekognition ClientError] request image chars=0
+  -> {"statusCode": 400, "body": {"Error": "InvalidImageFormatException", "ErrorMessage": "Couldn't analyze image. <message from Rekognition>"}}
+--- log lines
+ERROR Error function arn:aws:lambda:us-east-1:<account>:function:Detection_Lambda_Function: Please upload a picture with only one face
+ERROR Error function arn:aws:lambda:us-east-1:<account>:function:Detection_Lambda_Function: Please upload a picture with only one face
+ERROR Error function arn:aws:lambda:us-east-1:<account>:function:Detection_Lambda_Function: Invalid source. Only image base 64 encoded image bytes are supported.
+ERROR Error function arn:aws:lambda:us-east-1:<account>:function:Detection_Lambda_Function: Couldn't analyze image. <message from Rekognition>

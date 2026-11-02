@@ -1,0 +1,15 @@
+{
+ "v01": "One question: is this usable as a profile photo?",
+ "v02": "And with two people in frame, which face is it about?",
+ "v03": "This is the serverless profile photo checker.",
+ "v04": "A small client encodes the photo and posts it to A.P.I. Gateway.",
+ "v05": "The gateway hands it to a Lambda function.",
+ "v06": "It asks Amazon Recognition to describe the faces it finds.",
+ "v07": "Unless there is exactly one, it answers: please upload a picture with only one face.",
+ "v08": "One face passes only if it's smiling and its eyes are open.",
+ "v09": "Anything else comes back as a bad profile photo.",
+ "v10": "Its role allows three log actions and read-only Recognition, nothing else.",
+ "v11": "Fourteen Terraform resources build all of it, and Terraform validate passes.",
+ "v12": "It builds on an A.W.S. example, adding the one-face check and the photo rule.",
+ "v13": "Serverless profile photo checker."
+}

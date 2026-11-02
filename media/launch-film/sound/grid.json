@@ -1,0 +1,30 @@
+{
+ "track": "Sweet September (Arulo, Mixkit 282)",
+ "bpm": 76,
+ "bar": 3.15792,
+ "film_bar_k": "k * bar",
+ "drop": 9.474,
+ "groove_b": 34.737,
+ "end_card": 60.0,
+ "track_ending": 60.0,
+ "final_hit": 63.158,
+ "duration": 66.3,
+ "segments": [
+  [
+   0.0,
+   0.006
+  ],
+  [
+   3.158,
+   6.322
+  ],
+  [
+   9.474,
+   12.638
+  ],
+  [
+   60.0,
+   88.428
+  ]
+ ]
+}

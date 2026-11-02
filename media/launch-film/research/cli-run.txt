@@ -1,0 +1,11 @@
+$ python interact.py <url> goodphoto.jpeg
+"Good Profile Photo"
+
+$ python interact.py <url> badphoto.png
+"Bad Profile Photo"
+
+Error function arn:aws:lambda:us-east-1:<account>:function:Detection_Lambda_Function: Please upload a picture with only one face
+$ python interact.py <url> goodphoto.jpeg
+Error: 400
+Message: {'Error': 'ValueError', 'ErrorMessage': 'Please upload a picture with only one face'}
+

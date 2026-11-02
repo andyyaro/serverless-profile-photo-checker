@@ -1,0 +1,50 @@
+<template>
+  <style>
+    #root { position: absolute; inset: 0; }
+    /* the title on the drop: the film's mark, the name, the stack, the internship */
+    #t-stack { position: absolute; left: 0; right: 0; top: 168px; display: flex; flex-direction: column; align-items: center; }
+    #t-mark { width: 200px; height: 200px; }
+    #t-word { margin-top: 40px; font-size: 84px; line-height: 96px; font-weight: 700; letter-spacing: -1.4px; color: var(--label-primary); white-space: nowrap; }
+    #t-stk { margin-top: 18px; font-size: 38px; line-height: 46px; font-weight: 500; color: var(--label-secondary); white-space: nowrap; }
+    #t-chip { margin-top: 38px; display: flex; align-items: center; gap: 12px; padding: 12px 26px 12px 20px; border-radius: var(--radius-capsule);
+              background: var(--fill-tertiary); font-size: 30px; line-height: 36px; font-weight: 500; color: var(--label-primary); white-space: nowrap; }
+    #t-chip .ic { font-size: 30px; }
+  </style>
+  <div id="root" data-composition-id="s2-title" data-width="1920" data-height="1080">
+    <div id="t-stack">
+      <div id="t-mark" class="mark"><svg class="ic"><use href="#ic-person-crop-circle" /></svg><span class="badge"><svg class="ic"><use href="#ic-checkmark-circle-fill" /></svg></span></div>
+      <div id="t-word">Serverless profile-photo checker</div>
+      <div id="t-stk">AWS Lambda · API Gateway · Amazon Rekognition</div>
+      <div id="t-chip"><svg class="ic"><use href="#ic-calendar" /></svg><span>InternPass research internship · June to July 2025</span></div>
+    </div>
+  </div>
+  <script>
+    (function () {
+      const TM = window.TM, VO = window.VO;
+      const S0 = TM.s2[0], S1 = TM.s2[1];
+      const norm = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
+      const W = (k, w, nth = 0) => {
+        const alts = w.split("|");
+        for (const exact of [true, false]) {
+          let c = 0;
+          for (const x of VO[k].words) {
+            const t = norm(x.w);
+            if (alts.some((a) => (exact ? t === a : t.startsWith(a)))) { if (c === nth) return x.t0 - S0; c++; }
+          }
+        }
+        return VO[k].start - S0;
+      };
+      const tl = gsap.timeline({ paused: true });
+      // the mark pops on the drop (scene start = the drop = "serverless")
+      tl.fromTo("#t-mark", { opacity: 0, scale: 0.86, y: 24 }, { opacity: 1, scale: 1, y: 0, duration: 0.9, ease: "back.out(1.4)" }, TM.cues.mark_title - S0);
+      tl.fromTo("#t-mark .badge", { opacity: 0, scale: 0.4 }, { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(2)" }, TM.cues.mark_title - S0 + 0.45);
+      tl.fromTo("#t-word", { opacity: 0, y: 26 }, { opacity: 1, y: 0, duration: 0.7, ease: "power3.out" }, W("v03", "profilephoto") - 0.12);
+      // silent: the stack, then the internship chip; read until the board comes in
+      const end = VO.v03.end - S0;
+      tl.fromTo("#t-stk", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }, end + 0.35);
+      tl.fromTo("#t-chip", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }, end + 1.05);
+      tl.to("#t-stack", { opacity: 0, duration: 0.4, ease: "power1.in" }, S1 - S0 - 0.4);
+      window.__timelines["s2-title"] = tl;
+    })();
+  </script>
+</template>

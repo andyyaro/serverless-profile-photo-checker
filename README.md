@@ -1,5 +1,11 @@
 # Serverless profile-photo checker — Lambda + API Gateway + Rekognition
 
+<p align="center">
+  <a href="https://andyyaro.github.io/serverless-profile-photo-checker/film.html"><img src="docs/assets/readme/photo-checker-in-action.webp" alt="The middle of the launch film: Amazon Rekognition describes the faces, the one-face guard answers 400 for anything but exactly one face, and the smile and open-eyes rule marks goodphoto.jpeg a good profile photo and badphoto.png a bad one. Select to watch the 66-second film." width="920"></a>
+</p>
+
+<p align="center"><b>Watch the 66-second launch film:</b> <a href="https://andyyaro.github.io/serverless-profile-photo-checker/film.html">with sound and captions</a> · <a href="https://andyyaro.github.io/serverless-profile-photo-checker/film/photo-checker-launch.mp4">MP4, 10.9 MB</a> · <a href="media/launch-film/">how it was made</a></p>
+
 A small serverless API that takes a base64-encoded image, runs Amazon Rekognition
 face detection over it, and answers one question: is this usable as a profile photo?
 
@@ -94,6 +100,8 @@ badphoto.png            fixture that should fail
 quotes-service/         a second small service from the same internship, packaged
                         with Docker and deployed to the team's RKE2 cluster on EC2
                         via the Kubernetes Deployment manifest included there
+media/launch-film/      the 66-second launch film's source: composition, narration,
+                        sound, every claim with its source, and the watch page
 ```
 
 ---
@@ -119,3 +127,6 @@ where Rekognition is available.
 This was a short research internship, and the repository is what it is: two small services, real
 Terraform, real container packaging, and no automated tests. The `quotes-service/` Kubernetes
 manifest was applied to a cluster the team ran; provisioning that cluster was not my work.
+
+**The launch film** (2026-11-02) walks through the code and the Terraform as they are, without
+deploying anything; its source is in [`media/launch-film/`](media/launch-film/).

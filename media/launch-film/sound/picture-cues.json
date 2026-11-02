@@ -1,0 +1,264 @@
+[
+ {
+  "t": 0.3,
+  "kind": "pop",
+  "what": "s1 photo card (goodphoto.jpeg)"
+ },
+ {
+  "t": 5.8,
+  "kind": "pop",
+  "what": "s1 two-face schematic card"
+ },
+ {
+  "t": 6.88,
+  "kind": "tick",
+  "what": "s1 status: which face?"
+ },
+ {
+  "t": 9.474,
+  "kind": "riser",
+  "what": "s2 the drop (riser into it)",
+  "over": 3.0
+ },
+ {
+  "t": 9.474,
+  "kind": "hit",
+  "what": "s2 the mark lands on the drop",
+  "over": 3.0
+ },
+ {
+  "t": 9.924,
+  "kind": "pop",
+  "what": "s2 the mark's checkmark badge",
+  "pitch": 1.12
+ },
+ {
+  "t": 12.303,
+  "kind": "tick",
+  "what": "s2 chip: InternPass research internship"
+ },
+ {
+  "t": 14.511,
+  "kind": "sweep",
+  "what": "s3 camera sweeps into the board"
+ },
+ {
+  "t": 15.0,
+  "kind": "pop",
+  "what": "s3 interact.py card lights"
+ },
+ {
+  "t": 15.36,
+  "kind": "tick",
+  "what": "s3 chip base64"
+ },
+ {
+  "t": 16.78,
+  "kind": "tick",
+  "what": "s3 chip requests.post",
+  "pitch": 1.05
+ },
+ {
+  "t": 17.03,
+  "kind": "whoosh",
+  "what": "s3 token {image} client -> API Gateway",
+  "d": 0.95,
+  "over": 3.0
+ },
+ {
+  "t": 17.42,
+  "kind": "pop",
+  "what": "s3 API Gateway card lights",
+  "over": 3.5
+ },
+ {
+  "t": 19.74,
+  "kind": "whoosh",
+  "what": "s3 token API Gateway -> Lambda (with the glide right)",
+  "d": 0.6
+ },
+ {
+  "t": 20.34,
+  "kind": "pop",
+  "what": "s3 Lambda function lights"
+ },
+ {
+  "t": 21.316,
+  "kind": "glide",
+  "what": "s3 camera glides right to Rekognition (b2)",
+  "d": 1.3
+ },
+ {
+  "t": 22.31,
+  "kind": "whoosh",
+  "what": "s3 token Lambda -> Rekognition",
+  "d": 0.55
+ },
+ {
+  "t": 22.84,
+  "kind": "pop",
+  "what": "s3 Amazon Rekognition card lights"
+ },
+ {
+  "t": 24.66,
+  "kind": "whoosh",
+  "what": "s3 token FaceDetails (two faces) -> guard",
+  "d": 0.9
+ },
+ {
+  "t": 26.93,
+  "kind": "pop",
+  "what": "s3 guard card lights: Exactly one face?"
+ },
+ {
+  "t": 28.77,
+  "kind": "lowpop",
+  "what": "s3 status: 400 · Please upload a picture with only one face"
+ },
+ {
+  "t": 31.342,
+  "kind": "glide",
+  "what": "s3 camera glides down to the rule (b3)",
+  "d": 1.3
+ },
+ {
+  "t": 32.4,
+  "kind": "pop",
+  "what": "s3 rule card lights: Smiling, eyes open?"
+ },
+ {
+  "t": 33.5,
+  "kind": "tick",
+  "what": "s3 chip Smile and EyesOpen · Value true"
+ },
+ {
+  "t": 34.84,
+  "kind": "tick",
+  "what": "s3 status: 200 · Good Profile Photo",
+  "pitch": 1.06
+ },
+ {
+  "t": 37.33,
+  "kind": "tick",
+  "what": "s3 status: 200 · Bad Profile Photo",
+  "pitch": 0.95
+ },
+ {
+  "t": 38.849,
+  "kind": "glide",
+  "what": "s3 camera glides to the role (b4)",
+  "d": 1.3
+ },
+ {
+  "t": 39.57,
+  "kind": "pop",
+  "what": "s3 role card lights (as the b4 glide arrives)",
+  "over": 3.0
+ },
+ {
+  "t": 40.23,
+  "kind": "tick",
+  "what": "s3 role chip 1 (log action)",
+  "pitch": 1.0
+ },
+ {
+  "t": 40.37,
+  "kind": "tick",
+  "what": "s3 role chip 2 (log action)",
+  "pitch": 1.05
+ },
+ {
+  "t": 40.51,
+  "kind": "tick",
+  "what": "s3 role chip 3 (log action)",
+  "pitch": 1.1
+ },
+ {
+  "t": 40.81,
+  "kind": "pop",
+  "what": "s3 CloudWatch Logs card lights",
+  "pitch": 1.06
+ },
+ {
+  "t": 41.71,
+  "kind": "tick",
+  "what": "s3 role chip AmazonRekognitionReadOnlyAccess",
+  "pitch": 1.15
+ },
+ {
+  "t": 44.27,
+  "kind": "sweep",
+  "what": "s3 pull-back to the whole board (power2.inOut from v10's end, under way)"
+ },
+ {
+  "t": 45.22,
+  "kind": "whoosh",
+  "what": "s3 answer token returns Lambda -> API Gateway -> client",
+  "d": 1.12
+ },
+ {
+  "t": 46.37,
+  "kind": "tick",
+  "what": "s3 client status: \"Good Profile Photo\"",
+  "pitch": 1.06
+ },
+ {
+  "t": 47.9,
+  "kind": "hit",
+  "what": "s4 the big 14 lands"
+ },
+ {
+  "t": 48.53,
+  "kind": "pop",
+  "what": "s4 lambda.tf card fills in"
+ },
+ {
+  "t": 48.99,
+  "kind": "pop",
+  "what": "s4 apigw.tf card fills in",
+  "pitch": 1.06
+ },
+ {
+  "t": 51.39,
+  "kind": "tick",
+  "what": "s4 status: terraform validate"
+ },
+ {
+  "t": 53.3,
+  "kind": "pop",
+  "what": "s4 the credit card arrives"
+ },
+ {
+  "t": 54.06,
+  "kind": "tick",
+  "what": "s4 credit row 1 (AWS example)"
+ },
+ {
+  "t": 56.16,
+  "kind": "tick",
+  "what": "s4 credit row 2 (added)",
+  "pitch": 1.06
+ },
+ {
+  "t": 60.0,
+  "kind": "hit",
+  "what": "s5 the mark lands on the end card"
+ },
+ {
+  "t": 60.4,
+  "kind": "pop",
+  "what": "s5 the mark's checkmark badge",
+  "pitch": 1.12
+ },
+ {
+  "t": 62.613,
+  "kind": "tick",
+  "what": "s5 end line 1: One face, smiling, eyes open."
+ },
+ {
+  "t": 62.963,
+  "kind": "tick",
+  "what": "s5 end line 2: 14 Terraform resources.",
+  "pitch": 1.06
+ }
+]

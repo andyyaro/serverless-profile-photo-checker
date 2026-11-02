@@ -1,0 +1,293 @@
+<template>
+  <style>
+    #root { position: absolute; inset: 0; overflow: hidden; }
+    /* ONE board, the CERFODES way: world coordinates on a 1920 x 1080 map moved by the camera (#b-cam). The overview is
+       zoom 1.0 (world = screen). The title band (y < 132) and the caption band (y >= 936) are kept clear for the WHOLE
+       camera path: #b-fade is masked to 132 < y < 916 on screen. Close shots are zoom >= 1.4, so 17 px world text is
+       >= 23 px on screen; at the overview the secondary lines fold away and titles (23), status words (22) stay. */
+    #b-fade { position: absolute; inset: 0;
+              -webkit-mask-image: linear-gradient(to bottom, transparent 0, transparent 112px, #000 132px, #000 916px, transparent 936px);
+              mask-image: linear-gradient(to bottom, transparent 0, transparent 112px, #000 132px, #000 916px, transparent 936px); }
+    #b-cam { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 0 0; }
+    .zone { position: absolute; border-radius: var(--radius-group); background: var(--fill-quaternary); }
+    #z-lam { background: var(--fill-tertiary); border-radius: 22px; }
+    .zl { position: absolute; display: flex; align-items: baseline; gap: 10px; white-space: nowrap; }
+    .zl b { font-size: 22px; line-height: 28px; font-weight: 600; color: var(--label-primary); }
+    .zl span { font-size: 19px; line-height: 24px; color: var(--label-secondary); }
+    .sec { position: absolute; font-size: 22px; line-height: 28px; font-weight: 600; color: var(--label-secondary); white-space: nowrap; }
+    #b-cam .card.top { align-items: flex-start; }
+    #c-client-st { display: none; }
+    /* the role's chips are what the line is about: 22 px, so they stay readable in the overview at 1.0 */
+    #c-role .chip { padding: 4px 13px; font-size: 22px; line-height: 26px; }
+    #c-role .chips { gap: 8px; }
+    #c-lam { position: absolute; display: flex; gap: 14px; align-items: center; }
+    /* (review) the Lambda zone's fill is darker than the ground: label-secondary there was 3.95:1, this is about 5:1 */
+    #c-lam .s { color: #58585d; }
+    .thumbs { margin-top: 10px; display: flex; gap: 12px; }
+    .thumbs img { display: block; width: 114px; height: 171px; border-radius: 10px; object-fit: cover; }
+    .rrow { margin-top: 8px; display: flex; align-items: center; gap: 12px; }
+    .rrow img { display: block; flex: none; width: 40px; height: 60px; border-radius: 7px; object-fit: cover; }
+    .rrow .st { margin-top: 0; }
+    #c-guard .st { align-items: flex-start; }
+    #c-guard .st .dot { margin-top: 7px; }
+    #c-guard .st span { text-wrap: balance; }
+    #c-role .rl { display: flex; align-items: baseline; gap: 12px; white-space: nowrap; }
+    #c-role .rl .s { margin-top: 0; }
+    #b-wires { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; overflow: visible; }
+    #b-wires .w { fill: none; stroke: var(--system-gray); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+    #b-wires .w.dash { stroke-dasharray: 7 7; }
+    #b-wires .h { fill: var(--system-gray); stroke: none; }
+    #b-wires .mk { fill: none; stroke: #fff; stroke-width: 10; stroke-linecap: round; stroke-linejoin: round; }
+    .wl { position: absolute; width: 240px; text-align: center; font-size: 17px; line-height: 21px; font-weight: 500; color: var(--label-secondary); white-space: nowrap; }
+    /* tokens travel under the cards: they show only in the gaps, so they never cover text */
+    .tok { position: absolute; left: 0; top: 0; height: 30px; min-width: 30px; padding: 0 6px; border-radius: 15px; background: var(--background-primary);
+           border: 2px solid var(--system-indigo); display: flex; align-items: center; justify-content: center; gap: 4px;
+           font-size: 17px; line-height: 21px; font-weight: 500; color: var(--system-indigo); white-space: nowrap; }
+    .tok .ic { font-size: 18px; }
+    #k-req { padding: 0 10px; }
+    #k-faces { border-color: var(--system-teal); color: var(--system-teal); }
+    #k-back { border-color: var(--system-green); color: var(--system-green); }
+  </style>
+  <div id="root" data-composition-id="s3-board" data-width="1920" data-height="1080">
+    <div id="b-fade">
+      <div id="b-cam" data-layout-allow-overflow>
+        <div id="z-aws" class="zone" style="left:548px; top:168px; width:1332px; height:740px"></div>
+        <div id="z-aws-l" class="zl" style="left:572px; top:184px"><b>AWS</b><span>us-east-1</span></div>
+        <div id="z-lam" class="zone" style="left:1050px; top:186px; width:490px; height:522px"></div>
+        <svg id="b-wires" viewBox="0 0 1920 1080"></svg>
+        <!-- tokens: over the wire they ride on, under the cards (they show only in the gaps) -->
+        <div id="k-req" class="tok">{"image": "…"}</div>
+        <div id="k-inv" class="tok"><svg class="ic"><use href="#ic-photo" /></svg></div>
+        <div id="k-ask" class="tok"><svg class="ic"><use href="#ic-photo" /></svg></div>
+        <div id="k-faces" class="tok"><svg class="ic"><use href="#ic-person-crop-circle" /></svg><svg class="ic"><use href="#ic-person-crop-circle" /></svg></div>
+        <div id="k-back" class="tok"><svg class="ic"><use href="#ic-checkmark-circle" /></svg></div>
+        <!-- edge labels: centred on their wire (left = centre - 120) -->
+        <div id="l-req" class="wl" style="left:344px; top:399px">POST /friendly</div>
+        <div id="l-size" class="wl" style="left:344px; top:465px">558,892 characters</div>
+        <div id="l-inv" class="wl" style="left:834px; top:405px">lambda:InvokeFunction</div>
+        <div id="l-faces" class="wl" style="left:1480px; top:419px">FaceDetails</div>
+        <div id="l-logs" class="wl" style="left:1480px; top:607px">logger.error</div>
+        <div id="l-role" class="wl" style="left:1309px; top:719px; width:auto; text-align:left">assumed by</div>
+
+        <!-- the Lambda function: a zone holding the handler's two checks -->
+        <div id="c-lam" style="left:1070px; top:202px; width:450px">
+          <div class="tile" style="background:var(--system-blue)"><svg class="ic"><use href="#ic-gearshape" /></svg></div>
+          <div class="tx"><div class="t">Lambda function</div><div class="s">Detection_Lambda_Function<br />handler rekognition.lambda_handler</div></div>
+        </div>
+        <div id="c-guard" class="card" style="left:1070px; top:290px; width:450px; height:158px">
+          <div class="tile" style="background:var(--system-gray)"><svg class="ic"><use href="#ic-person-crop-circle" /></svg></div>
+          <div class="tx"><div class="t">Exactly one face?</div>
+            <div class="chips" id="c-guard-chips"><span class="chip">len(FaceDetails) != 1</span></div>
+            <div class="st" id="c-guard-st"><i class="dot r"></i><span>400 · Please upload a picture with only one face</span></div></div>
+        </div>
+        <div id="c-rule" class="card" style="left:1070px; top:460px; width:450px; height:232px">
+          <div class="tile" style="background:var(--system-gray)"><svg class="ic"><use href="#ic-checkmark-circle" /></svg></div>
+          <div class="tx"><div class="t">Smiling, eyes open?</div>
+            <div class="chips" id="c-rule-chips"><span class="chip">Smile and EyesOpen · Value true</span></div>
+            <div class="rrow" id="c-rule-good"><img src="assets/img/goodphoto-160.jpg" alt="goodphoto.jpeg" /><div class="st"><i class="dot g"></i><span>200 · Good Profile Photo</span></div></div>
+            <div class="rrow" id="c-rule-bad"><img src="assets/img/badphoto-160.jpg" alt="badphoto.png" /><div class="st"><i class="dot o"></i><span>200 · Bad Profile Photo</span></div></div></div>
+        </div>
+        <div id="c-client-w" style="position:absolute; left:40px; top:213px; width:340px; height:460px; display:flex; flex-direction:column; justify-content:center">
+        <div id="sec-client" class="sec" style="position:relative; margin:0 0 10px 4px">Client</div>
+        <div id="c-client" class="card top" style="position:relative; width:340px">
+          <div class="tile" style="background:var(--system-gray)"><svg class="ic"><use href="#ic-paperplane" /></svg></div>
+          <div class="tx"><div class="t">interact.py</div><div class="s">python interact.py<br />&lt;url&gt; &lt;image&gt;</div>
+            <div class="chips" id="c-client-chips"><span class="chip">base64</span><span class="chip">requests.post</span></div>
+            <div class="thumbs"><img src="assets/img/goodphoto-320.jpg" alt="goodphoto.jpeg" /><img src="assets/img/badphoto-320.jpg" alt="badphoto.png" /></div>
+            <div class="st" id="c-client-st"><i class="dot g"></i><span>"Good Profile Photo"</span></div></div>
+        </div>
+        </div>
+        <div id="c-api" class="card" style="left:568px; top:383px; width:290px; height:120px">
+          <div class="tile" style="background:var(--system-indigo)"><svg class="ic"><use href="#ic-globe" /></svg></div>
+          <div class="tx"><div class="t">API Gateway</div><div class="s">REST API my-api<br />REGIONAL · stage dev</div></div>
+        </div>
+        <div id="c-rek" class="card v" style="left:1660px; top:250px; width:200px; height:212px">
+          <div class="tile" style="background:var(--system-teal)"><svg class="ic"><use href="#ic-eye" /></svg></div>
+          <div class="tx"><div class="t">Amazon Rekognition</div>
+            <div class="chips"><span class="chip">detect_faces</span><span class="chip">Attributes ALL</span></div></div>
+        </div>
+        <div id="c-logs" class="card v" style="left:1660px; top:556px; width:200px; height:196px">
+          <div class="tile" style="background:var(--system-gray)"><svg class="ic"><use href="#ic-text-alignleft" /></svg></div>
+          <div class="tx"><div class="t">CloudWatch Logs</div><div class="s">errors, with the function ARN</div></div>
+        </div>
+        <div id="c-role" class="card" style="left:568px; top:752px; width:972px; height:142px">
+          <div class="tile" style="background:var(--system-gray)"><svg class="ic"><use href="#ic-lock" /></svg></div>
+          <div class="tx"><div class="rl"><span class="t">Detection_Lambda_Function_Role</span><span class="s">trust lambda.amazonaws.com</span></div>
+            <div class="chips" id="c-role-chips"><span class="chip">logs:CreateLogGroup</span><span class="chip">logs:CreateLogStream</span><span class="chip">logs:PutLogEvents</span><span class="chip">AmazonRekognitionReadOnlyAccess</span></div></div>
+        </div>
+      </div>
+    </div>
+    <div id="b-title" class="sect" data-layout-allow-overlap><b>From photo to answer</b><span>POST /friendly · stage dev · us-east-1</span></div>
+  </div>
+  <script>
+    (function () {
+      const TM = window.TM, VO = window.VO;
+      const S0 = TM.s3[0], S1 = TM.s3[1];
+      const norm = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
+      const W = (k, w, nth = 0) => {
+        const alts = w.split("|");
+        for (const exact of [true, false]) {
+          let c = 0;
+          for (const x of VO[k].words) {
+            const t = norm(x.w);
+            if (alts.some((a) => (exact ? t === a : t.startsWith(a)))) { if (c === nth) return x.t0 - S0; c++; }
+          }
+        }
+        return VO[k].start - S0;
+      };
+      const cam = document.getElementById("b-cam");
+      const wires = document.getElementById("b-wires");
+
+      // ---- wires: line + arrowhead; dashed wires are revealed through a mask so the dashes stay put (CERFODES)
+      const WIRES = [
+        { id: "w-req", d: "M380 443 H558", dir: "r" },
+        { id: "w-inv", d: "M858 443 H1040", dir: "r" },
+        { id: "w-ask", d: "M1540 300 H1650", dir: "r" },
+        { id: "w-faces", d: "M1660 400 H1530", dir: "l" },
+        { id: "w-logs", d: "M1540 640 H1650", dir: "r" },
+        { id: "w-role", d: "M1295 752 V718", dir: "u", dash: 1 },
+      ];
+      const end = (d) => { const n = d.match(/-?\d+(\.\d+)?/g).map(Number); const cmds = d.match(/[MHV]/g);
+        let x = 0, y = 0, k = 0; for (const c of cmds) { if (c === "M") { x = n[k++]; y = n[k++]; } else if (c === "H") x = n[k++]; else y = n[k++]; } return [x, y]; };
+      const head = ([x, y], dir) => {
+        const a = 9, b = 6;
+        if (dir === "r") return `M${x} ${y} L${x - a} ${y - b} L${x - a} ${y + b} Z`;
+        if (dir === "l") return `M${x} ${y} L${x + a} ${y - b} L${x + a} ${y + b} Z`;
+        if (dir === "d") return `M${x} ${y} L${x - b} ${y - a} L${x + b} ${y - a} Z`;
+        return `M${x} ${y} L${x - b} ${y + a} L${x + b} ${y + a} Z`;
+      };
+      const shift = (d, dir) => { const [x, y] = end(d); const off = { r: [9, 0], l: [-9, 0], d: [0, 9], u: [0, -9] }[dir]; return [x + off[0] * 0.6, y + off[1] * 0.6]; };
+      let defs = "", g = "";
+      for (const w of WIRES) {
+        const tip = shift(w.d, w.dir);
+        if (w.dash) {
+          defs += `<mask id="${w.id}-m" maskUnits="userSpaceOnUse" x="0" y="0" width="1920" height="1080"><path id="${w.id}-mk" class="mk" d="${w.d}" pathLength="1"/></mask>`;
+          g += `<g id="${w.id}"><path class="w dash" d="${w.d}" mask="url(#${w.id}-m)"/><path id="${w.id}-h" class="h" d="${head(tip, w.dir)}"/></g>`;
+        } else {
+          g += `<g id="${w.id}"><path id="${w.id}-ln" class="w" d="${w.d}" pathLength="1"/><path id="${w.id}-h" class="h" d="${head(tip, w.dir)}"/></g>`;
+        }
+      }
+      wires.innerHTML = `<defs>${defs}</defs>${g}`;
+
+      // ---- camera: frame world point (cx, cy) at zoom s in the middle of the clear band (132 < y < 916)
+      const C = (cx, cy, s) => ({ x: 960 - cx * s, y: 524 - cy * s, scale: s });
+      const tl = gsap.timeline({ paused: true });
+      const pop = (sel, at, dy = 18) => tl.fromTo(sel, { opacity: 0, y: dy, scale: 0.96 }, { opacity: 1, y: 0, scale: 1, duration: 0.6, ease: "back.out(1.5)" }, at);
+      const fade = (sel, at, d = 0.5) => tl.fromTo(sel, { opacity: 0 }, { opacity: 1, duration: d, ease: "power1.out" }, at);
+      const dot = (sel, at) => tl.fromTo(sel, { opacity: 0, x: -8 }, { opacity: 1, x: 0, duration: 0.45, ease: "power2.out" }, at);
+      const chip = (sel, at) => tl.fromTo(sel, { opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1, duration: 0.4, ease: "back.out(2)" }, at);
+      // skeleton: the empty card shape arrives early (faint), its content lights up on the narrated word
+      const ph = (sel, at) => tl.fromTo(sel, { opacity: 0, scale: 0.97 }, { opacity: 0.5, scale: 1, duration: 0.45, ease: "power2.out" }, at);
+      const light = (sel, at) => {
+        tl.to(sel, { opacity: 1, duration: 0.3, ease: "power1.out" }, at);
+        tl.fromTo(`${sel} > *`, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.45, ease: "power2.out" }, at);
+        tl.to(sel, { scale: 1.035, duration: 0.2, ease: "power2.out" }, at);
+        tl.to(sel, { scale: 1, duration: 0.35, ease: "power2.inOut" }, at + 0.2);
+      };
+      const wire = (id, at, d = 0.45) => {
+        const w = WIRES.find((x) => x.id === id);
+        if (w.dash) tl.fromTo(`#${id}-mk`, { strokeDasharray: 1, strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: d, ease: "power2.inOut" }, at);
+        else tl.fromTo(`#${id}-ln`, { strokeDasharray: 1, strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: d, ease: "power2.inOut" }, at);
+        tl.fromTo(`#${id}-h`, { opacity: 0 }, { opacity: 1, duration: 0.15 }, at + d - 0.1);
+      };
+      // one token at a time travels a wire (x0 -> x1 at height y, world px; the token is centred on the line)
+      const travel = (sel, x0, x1, y, at, d = 0.8) => {
+        const el = document.querySelector(sel);
+        const w = el.offsetWidth || 30;
+        tl.fromTo(sel, { x: x0 - w / 2, y: y - 15, opacity: 0 }, { x: x0 - w / 2 + (x1 - x0) * 0.12, opacity: 1, duration: d * 0.12, ease: "none" }, at);
+        tl.to(sel, { x: x1 - w / 2, duration: d * 0.88, ease: "power1.inOut" }, at + d * 0.12);
+        tl.set(sel, { opacity: 0 }, at + d + 0.02);
+      };
+      gsap.set(".tok", { opacity: 0 });
+
+      // ===== b1 request: close on the client, the request travels to API Gateway, then to the Lambda =====
+      tl.fromTo(cam, C(600, 480, 1.45), { ...C(470, 443, 1.8), duration: 1.3, ease: "power2.out" }, 0);
+      tl.to(cam, { ...C(470, 443, 1.74), duration: W("v05", "hands") - 0.3 - 1.3, ease: "none" }, 1.3);
+      fade("#b-fade", 0.3, 0.45);
+      fade("#b-title", 0.35, 0.5);
+      fade(["#z-aws", "#z-aws-l"], 0.35, 0.6);
+      fade("#sec-client", 0.4, 0.4);
+      ph("#c-client", 0.4);
+      ph("#c-api", 0.55);
+      light("#c-client", W("v04", "client"));
+      chip("#c-client-chips .chip:nth-child(1)", W("v04", "encodes"));
+      chip("#c-client-chips .chip:nth-child(2)", W("v04", "posts"));
+      const posts = W("v04", "posts");
+      wire("w-req", posts - 0.05, 0.45);
+      fade("#l-req", posts + 0.15, 0.4);
+      travel("#k-req", 380, 568, 443, posts + 0.25, 0.95);
+      fade("#l-size", posts + 0.35, 0.4);
+      light("#c-api", W("v04", "api"));
+
+      // "The gateway hands it to a Lambda function": glide right, the wire draws, the Lambda lights
+      const hands = W("v05", "hands");
+      // (review) the Lambda zone keeps a margin on the right; the client card's chip text leaves the frame
+      tl.to(cam, { ...C(990, 440, 1.5), duration: 1.2, ease: "power2.inOut" }, hands - 0.3);
+      fade("#z-lam", hands - 0.2, 0.6);
+      ph("#c-lam", hands - 0.1);
+      wire("w-inv", hands, 0.45);
+      fade("#l-inv", hands + 0.2, 0.4);
+      travel("#k-inv", 858, 1050, 443, hands + 0.3, 0.6);
+      light("#c-lam", W("v05", "lambda"));
+      ph("#c-guard", W("v05", "lambda") + 0.4);
+      ph("#c-rule", W("v05", "lambda") + 0.47);
+
+      // ===== b2 faces: glide right to Rekognition; the faces come back; the one-face guard answers 400 =====
+      const b2 = VO.v05.end - S0 + 0.1;
+      tl.to(cam, { ...C(1440, 362, 1.6), duration: 1.3, ease: "power2.inOut" }, b2);
+      ph("#c-rek", b2 + 0.3);
+      const asks = W("v06", "asks");
+      wire("w-ask", asks + 0.05, 0.4);
+      travel("#k-ask", 1540, 1660, 300, asks + 0.25, 0.55);
+      light("#c-rek", W("v06", "rekognition"));
+      const faces = W("v06", "faces");
+      wire("w-faces", faces - 0.15, 0.4);
+      fade("#l-faces", faces + 0.05, 0.4);
+      travel("#k-faces", 1660, 1500, 400, faces + 0.1, 0.9);
+      light("#c-guard", W("v07", "exactly"));
+      dot("#c-guard-st", W("v07", "please"));
+
+      // ===== b3 rule: glide down; smiling + eyes open -> Good; anything else -> Bad =====
+      const b3 = VO.v07.end - S0 + 0.05;
+      // (review) the whole Lambda zone (header, guard, rule) between the title band and the caption band, Rekognition whole,
+      // and the API card's text off the left edge: at 1.6 the zone (522 px) is taller than the clear band, so 1.5
+      tl.to(cam, { ...C(1460, 447, 1.5), duration: 1.3, ease: "power2.inOut" }, b3);
+      ph("#c-logs", b3 + 0.5);
+      light("#c-rule", W("v08", "passes"));
+      chip("#c-rule-chips .chip", W("v08", "smiling"));
+      dot("#c-rule-good", W("v08", "open"));
+      dot("#c-rule-bad", W("v09", "bad"));
+
+      // ===== b4 role: glide to the execution role: three log actions, read-only Rekognition, nothing else =====
+      const b4 = VO.v09.end - S0 + 0.25;
+      // (review) cx 1214 -> 1235: the "558,892 characters" edge label no longer shows a cut fragment at the left edge
+      tl.to(cam, { ...C(1235, 735, 1.4), duration: 1.3, ease: "power2.inOut" }, b4);
+      ph("#c-role", b4 + 0.3);
+      light("#c-role", W("v10", "role"));
+      wire("w-role", W("v10", "role") + 0.3, 0.4);
+      fade("#l-role", W("v10", "role") + 0.5, 0.4);
+      const three = W("v10", "three");
+      [0, 1, 2].forEach((i) => chip(`#c-role-chips .chip:nth-child(${i + 1})`, three + i * 0.14));
+      light("#c-logs", W("v10", "actions"));
+      wire("w-logs", W("v10", "actions") + 0.2, 0.4);
+      fade("#l-logs", W("v10", "actions") + 0.4, 0.4);
+      chip("#c-role-chips .chip:nth-child(4)", W("v10", "readonly"));
+
+      // ===== the overview: the whole board at 1.0, held without voice; the answer returns to the client =====
+      const W0 = VO.v10.end - S0;
+      tl.to(cam, { ...C(960, 524, 1.0), duration: 1.4, ease: "power2.inOut" }, W0);
+      // secondary lines, chips and edge labels were read in the close shots: fade, then fold away while moving
+      const FOLD = "#b-cam .s, #c-client-chips, #c-guard-chips, #c-rule-chips, #c-rek .chips, .wl, .zl span";
+      tl.to(FOLD, { opacity: 0, duration: 0.35, ease: "power1.out" }, W0 + 0.1);
+      tl.set(FOLD, { display: "none" }, W0 + 0.5);
+      tl.set("#c-client-st", { display: "flex" }, W0 + 0.5);
+      const back = W0 + 1.25;
+      travel("#k-back", 1050, 858, 443, back, 0.5);
+      travel("#k-back", 568, 380, 443, back + 0.62, 0.5);
+      dot("#c-client-st", back + 1.15);
+      tl.to(["#b-fade", "#b-title"], { opacity: 0, duration: 0.4, ease: "power1.in" }, S1 - S0 - 0.4);
+
+      window.__timelines["s3-board"] = tl;
+    })();
+  </script>
+</template>

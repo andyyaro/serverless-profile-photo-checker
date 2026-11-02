@@ -1,0 +1,72 @@
+<template>
+  <style>
+    #root { position: absolute; inset: 0; }
+    /* the hook: one question over the repo's own fixture photo; then the case it cannot answer */
+    #h-q { position: absolute; left: 0; top: 92px; width: 1920px; text-align: center; }
+    #h-k { font-size: 36px; line-height: 44px; font-weight: 500; color: var(--label-secondary); }
+    #h-h { margin-top: 8px; font-size: 72px; line-height: 84px; font-weight: 700; letter-spacing: -1.2px; color: var(--label-primary); white-space: nowrap; }
+    #h-h .w { display: inline-block; }
+    .h-card { position: absolute; top: 272px; width: 410px; height: 616px; padding: 14px; border-radius: 26px; background: var(--background-primary); }
+    #h-c1 { left: 755px; }
+    #h-c1 img { display: block; width: 382px; height: 573px; border-radius: 16px; object-fit: cover; }
+    #h-c1 .h-cap { margin-top: 6px; }
+    #h-c2 { left: 995px; display: flex; flex-direction: column; }
+    #h-ph { width: 382px; height: 534px; border-radius: 16px; background: var(--fill-tertiary); display: flex; align-items: center; justify-content: center; gap: 22px;
+            color: var(--system-gray); font-size: 150px; }
+    #h-st { margin: 18px 0 0 6px; }
+    #h-st .dot { width: 14px; height: 14px; }
+    #h-st span { font-size: 28px; line-height: 32px; }
+  </style>
+  <div id="root" data-composition-id="s1-hook" data-width="1920" data-height="1080">
+    <div id="h-q">
+      <div id="h-k">One question</div>
+      <div id="h-h"><span class="w">Is</span> <span class="w">this</span> <span class="w">usable</span> <span class="w">as</span> <span class="w">a</span> <span class="w">profile</span> <span class="w">photo?</span></div>
+    </div>
+    <div id="h-c1" class="h-card"><img src="assets/img/goodphoto-640.jpg" alt="goodphoto.jpeg, the repo's fixture that should pass" /></div>
+    <div id="h-c2" class="h-card">
+      <div id="h-ph"><svg class="ic"><use href="#ic-person-crop-circle" /></svg><svg class="ic"><use href="#ic-person-crop-circle" /></svg></div>
+      <div id="h-st" class="st"><i class="dot"></i><span>which face?</span></div>
+    </div>
+  </div>
+  <script>
+    (function () {
+      const TM = window.TM, VO = window.VO;
+      const S0 = TM.s1[0], S1 = TM.s1[1];
+      // W(line, word[, nth]): the time of a word in the narration (window.VO), in seconds from this scene's start
+      const norm = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
+      const W = (k, w, nth = 0) => {
+        const alts = w.split("|");
+        for (const exact of [true, false]) {
+          let c = 0;
+          for (const x of VO[k].words) {
+            const t = norm(x.w);
+            if (alts.some((a) => (exact ? t === a : t.startsWith(a)))) { if (c === nth) return x.t0 - S0; c++; }
+          }
+        }
+        return VO[k].start - S0;
+      };
+      const tl = gsap.timeline({ paused: true });
+      const pop = (sel, at, dy = 18) => tl.fromTo(sel, { opacity: 0, y: dy, scale: 0.96 }, { opacity: 1, y: 0, scale: 1, duration: 0.6, ease: "back.out(1.5)" }, at);
+
+      // the photo card arrives on the keys (it starts centred: 755 + 205 = 960)
+      pop("#h-c1", 0.3, 24);
+      tl.fromTo("#h-k", { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, W("v01", "one") - 0.05);
+      // the question, word by word, on the voice's own word times
+      const words = gsap.utils.toArray("#h-h .w");
+      ["is", "this", "usable", "as", "a", "profile", "photo"].forEach((w, i) =>
+        tl.fromTo(words[i], { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.42, ease: "power3.out" }, W("v01", w) - 0.04));
+
+      // "two people in frame": the photo steps left, the schematic two-face card joins it
+      const two = W("v02", "two");
+      tl.to("#h-c1", { x: -240, duration: 0.8, ease: "power2.inOut" }, two - 0.1);
+      tl.fromTo("#h-c2", { opacity: 0, x: 40, scale: 0.96 }, { opacity: 1, x: 0, scale: 1, duration: 0.7, ease: "back.out(1.3)" }, two + 0.1);
+      tl.fromTo("#h-ph .ic", { opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1, duration: 0.45, ease: "back.out(1.8)", stagger: 0.18 }, W("v02", "people"));
+      // "which face": a grey dot + word (orange stays for "Bad Profile Photo")
+      tl.fromTo("#h-st", { opacity: 0, x: -8 }, { opacity: 1, x: 0, duration: 0.45, ease: "power2.out" }, W("v02", "which"));
+
+      // both clear under "This is the", before the drop
+      tl.to(["#h-q", "#h-c1", "#h-c2"], { opacity: 0, y: -10, duration: 0.4, ease: "power1.in" }, W("v03", "this") - 0.05);
+      window.__timelines["s1-hook"] = tl;
+    })();
+  </script>
+</template>

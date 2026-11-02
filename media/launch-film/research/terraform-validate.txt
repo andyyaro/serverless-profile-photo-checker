@@ -1,0 +1,10 @@
+$ terraform validate   (Terraform 1.13.3, darwin_arm64; hashicorp/aws 6.15.0 pinned in a scratch copy only, hashicorp/archive 2.8.1; repo @fd8589e; no credentials)
+Success! The configuration is valid.
+
+{
+  "format_version": "1.0",
+  "valid": true,
+  "error_count": 0,
+  "warning_count": 0,
+  "diagnostics": []
+}

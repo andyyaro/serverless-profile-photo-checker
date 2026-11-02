@@ -1,0 +1,36 @@
+digraph G {
+  rankdir = "RL";
+  node [shape = rect, fontname = "sans-serif"];
+  "data.archive_file.zip_the_python_code" [label="data.archive_file.zip_the_python_code"];
+  "data.aws_iam_policy.rekognition_policy" [label="data.aws_iam_policy.rekognition_policy"];
+  "aws_api_gateway_deployment.deployment" [label="aws_api_gateway_deployment.deployment"];
+  "aws_api_gateway_integration.lambda_integration" [label="aws_api_gateway_integration.lambda_integration"];
+  "aws_api_gateway_integration_response.proxy" [label="aws_api_gateway_integration_response.proxy"];
+  "aws_api_gateway_method.proxy" [label="aws_api_gateway_method.proxy"];
+  "aws_api_gateway_method_response.proxy" [label="aws_api_gateway_method_response.proxy"];
+  "aws_api_gateway_resource.root" [label="aws_api_gateway_resource.root"];
+  "aws_api_gateway_rest_api.my_api" [label="aws_api_gateway_rest_api.my_api"];
+  "aws_api_gateway_stage.dev" [label="aws_api_gateway_stage.dev"];
+  "aws_iam_policy.iam_policy_for_lambda" [label="aws_iam_policy.iam_policy_for_lambda"];
+  "aws_iam_role.lambda_role" [label="aws_iam_role.lambda_role"];
+  "aws_iam_role_policy_attachment.attach_iam_policy_to_iam_role" [label="aws_iam_role_policy_attachment.attach_iam_policy_to_iam_role"];
+  "aws_iam_role_policy_attachment.codedeploy_service_role_policy_attach" [label="aws_iam_role_policy_attachment.codedeploy_service_role_policy_attach"];
+  "aws_lambda_function.terraform_lambda_func" [label="aws_lambda_function.terraform_lambda_func"];
+  "aws_lambda_permission.apigw_lambda" [label="aws_lambda_permission.apigw_lambda"];
+  "aws_api_gateway_deployment.deployment" -> "aws_api_gateway_integration.lambda_integration";
+  "aws_api_gateway_integration.lambda_integration" -> "aws_api_gateway_method.proxy";
+  "aws_api_gateway_integration.lambda_integration" -> "aws_lambda_function.terraform_lambda_func";
+  "aws_api_gateway_integration_response.proxy" -> "aws_api_gateway_integration.lambda_integration";
+  "aws_api_gateway_integration_response.proxy" -> "aws_api_gateway_method_response.proxy";
+  "aws_api_gateway_method.proxy" -> "aws_api_gateway_resource.root";
+  "aws_api_gateway_method_response.proxy" -> "aws_api_gateway_method.proxy";
+  "aws_api_gateway_resource.root" -> "aws_api_gateway_rest_api.my_api";
+  "aws_api_gateway_stage.dev" -> "aws_api_gateway_deployment.deployment";
+  "aws_iam_role_policy_attachment.attach_iam_policy_to_iam_role" -> "aws_iam_policy.iam_policy_for_lambda";
+  "aws_iam_role_policy_attachment.attach_iam_policy_to_iam_role" -> "aws_iam_role.lambda_role";
+  "aws_iam_role_policy_attachment.codedeploy_service_role_policy_attach" -> "data.aws_iam_policy.rekognition_policy";
+  "aws_iam_role_policy_attachment.codedeploy_service_role_policy_attach" -> "aws_iam_role.lambda_role";
+  "aws_lambda_function.terraform_lambda_func" -> "aws_iam_role_policy_attachment.attach_iam_policy_to_iam_role";
+  "aws_lambda_permission.apigw_lambda" -> "aws_api_gateway_rest_api.my_api";
+  "aws_lambda_permission.apigw_lambda" -> "aws_lambda_function.terraform_lambda_func";
+}
